@@ -18,7 +18,17 @@ RUN mkdir /litecoin
 COPY --from=verify /litecoin/litecoin-0.17.1-x86_64-linux-gnu.tar.gz /tmp/litecoin-0.17.1-x86_64-linux-gnu.tar.gz
 RUN tar -xzvf /tmp/litecoin-0.17.1-x86_64-linux-gnu.tar.gz -C /litecoin
 
+FROM debian:stable-slim as authgen
+RUN apt-get update
+RUN apt-get install -y python3
+RUN mkdir /litecoin
+COPY rpcauth.py /litecoin/rpcauth.py
+RUN chmod +x /litecoin/rpcauth.py
+RUN cd /litecoin/ && ./rpcauth.py - litecoin
 
 FROM debian:stable-slim as final
 RUN mkdir /litecoin
+RUN mkdir ~/.litecoin
 COPY --from=unpack /litecoin/litecoin-0.17.1/ /litecoin/
+COPY --from=authgen /litecoin/litecoin.conf ~/.litecoin/litecoin.conf
+RUN /litecoin/bin/litecoind -daemon
