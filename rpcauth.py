@@ -40,7 +40,7 @@ def main():
     password_hmac = password_to_hmac(salt, password)
 
     f=open("/litecoin/litecoin.conf","w+")
-    f.write('rpcauth={0}:{1}${2}'.format(username, salt, password_hmac))
+    f.writelines('rpcauth={0}:{1}${2}'.format(username, salt, password_hmac))
     f.close()
 
     f=open("/litecoin/passwd.txt","+w")

@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: litecoin
+  labels:
+    app: litecoin
+spec:
+  ports:
+  - port: 9332
+    name: rpc1
+  clusterIP: None
+  selector:
+    app: litecoin
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bitcoin
+spec:
+  selector:
+    matchLabels:
+      app: litecoin # has to match .spec.template.metadata.labels
+  serviceName: "litecoin"
+  replicas: 1 # by default is 1
+  template:
+    metadata:
+      labels:
+        app: litecoin # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: litecoin
+        image: deicist/techtest
+        ports:
+        - containerPort: 9332        
+        - containerPort: 9333
+        - containerPort: 19335
+        - containerPort: 19332
+        - containerPort: 19444
+        - containerPort: 19332
+        volumeMounts:
+        - name: blockchain
+          mountPath: /root/.litecoin
+  volumeClaimTemplates:
+  - metadata:
+      name: blockchain
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "blockchain-storage-class"
+      resources:
+        requests:
+          storage: 1Gi

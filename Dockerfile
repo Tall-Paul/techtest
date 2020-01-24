@@ -31,4 +31,5 @@ RUN mkdir /litecoin
 RUN mkdir ~/.litecoin
 COPY --from=unpack /litecoin/litecoin-0.17.1/ /litecoin/
 COPY --from=authgen /litecoin/litecoin.conf ~/.litecoin/litecoin.conf
-RUN /litecoin/bin/litecoind -daemon
+EXPOSE 9332 9333 19335 19332 19444 19332
+CMD ["/litecoin/bin/litecoind"]
